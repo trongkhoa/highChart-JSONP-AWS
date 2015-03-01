@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+</head>
+<body>
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<button onclick="stopQuery()"> Stop Updating </button>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script>
+var indoorTemp = [];
+var outdoorTemp = [];	
+var fridgeTemp = [];
+var timeStamp = [];
+
+var startQuery = setInterval(updateData, 5000);
+
+
+function updateData(){
+	$.ajax({ //indoor
+		url: 'http://Default-Environment-qnbzq3unpn.elasticbeanstalk.com/1/getTemp', 
+		dataType: 'jsonp',
+		success: function(result){
+            //alert(JSON.stringify(result));
+			indoorTemp.push(result.temperature);
+			//alert(indoorTemp);
+			}
+		});
+	$.ajax({ //fridge
+		url: 'http://Default-Environment-qnbzq3unpn.elasticbeanstalk.com/2/getTemp', 
+		dataType: 'jsonp',
+		success: function(result){
+           // alert(JSON.stringify(result));
+			fridgeTemp.push(result.temperature);
+			//alert(fridgeTemp);
+			}
+		});
+	$.ajax({ //outdoor
+		url: 'http://Default-Environment-qnbzq3unpn.elasticbeanstalk.com/3/getTemp', 
+		dataType: 'jsonp',
+		success: function(result){
+           // alert(JSON.stringify(result));
+			outdoorTemp.push(result.temperature);
+			//alert(outdoorTemp);
+		
+			}
+		});
+	
+	var time = new Date();
+	var hh = time.getHours();
+	var mm = time.getMinutes();
+	var ss = time.getSeconds();
+	var stamp = hh +":" + mm + ":" + ss;
+	timeStamp.push(stamp);
+	replot();
+}
+function replot(){
+	$(function () {
+    $('#container').highcharts({
+        title: {
+            text: 'Monthly Average Temperature',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Source: WorldClimate.com',
+            x: -20
+        },
+        xAxis: {
+            categories: timeStamp
+        },
+        yAxis: {
+            title: {
+                text: 'Temperature (°F)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: '°F'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Indoor Sensor',
+            data: indoorTemp
+        }, {
+            name: 'Refridgerator',
+            data: fridgeTemp
+        }, {
+            name: 'Outdoor Sensor',
+            data: outdoorTemp
+        }]
+    });
+});
+	
+	}
+
+		
+	
+function stopQuery(){
+		clearInterval(startQuery);
+	
+}
+
+
+
+</script>
+
+
+
+
+</html>
