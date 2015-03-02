@@ -50,14 +50,19 @@ function updateData(){
 			}
 		});
 	
+	
+	timeStamp.push(createTimeStamp());
+	replot();
+}
+function createTimeStamp(){
 	var time = new Date();
 	var hh = time.getHours();
 	var mm = time.getMinutes();
 	var ss = time.getSeconds();
 	var stamp = hh +":" + mm + ":" + ss;
-	timeStamp.push(stamp);
-	replot();
+	return stamp;
 }
+
 function replot(){
 	$(function () {
     $('#container').highcharts({
